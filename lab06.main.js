@@ -114,9 +114,9 @@ class ServiceNowAdapter extends EventEmitter {
         * healthcheck(), execute it passing the error seen as an argument
         * for the callback's errorMessage parameter.
         */
-        this.emitOffline();
-        log.error("Error from " + this.id)
-        // callback(null, error);
+        this.emitStatus('OFFLINE');
+        log.error(`ServiceNow: Instance is unavailable.`);
+        callback(null, error);
     } else {
         /**
         * Write this block.
@@ -128,9 +128,9 @@ class ServiceNowAdapter extends EventEmitter {
         * parameter as an argument for the callback function's
         * responseData parameter.
         */
-        this.emitOnline();
-        log.debug("Online");
-        // callback(result, null);
+        this.emitStatus('ONLINE');
+        log.info('ServiceNow: Instance is available latest.');
+        callback(result, null);
     }
     });
     }
@@ -191,30 +191,9 @@ class ServiceNowAdapter extends EventEmitter {
 
       this.connector.get((data, error) => {
             if (error) {
-                // console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
-                callback(null, error);
-            } else {
-                console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
-                if (typeof data == 'object' && 'body' in data) {
-                    const body = JSON.parse(data.body);
-                    const array = body.result
-                    let returnData = []
-                    array.forEach(element => {
-                        const { number: change_ticket_number, active, priority, description, work_start, work_end, sys_id: change_ticket_key } = element
-                        const obj = {
-                        change_ticket_number,
-                        active,
-                        priority,
-                        description,
-                        work_start,
-                        work_end, 
-                        change_ticket_key
-                        }
-                        returnData.push(obj)
-                    });
-                    callback(returnData, null)
-                }
+                console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
             }
+            console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
         });
   }
 
@@ -237,26 +216,9 @@ class ServiceNowAdapter extends EventEmitter {
 
       this.connector.post((data, error) => {
             if (error) {
-                // console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
-                 callback(data, error);
-            } else {
-                console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`)
-                if (typeof data == 'object' && 'body' in data) {
-                    const body = JSON.parse(data.body);
-                    const result = body.result;
-                    const { number: change_ticket_number, active, priority, description, work_start, work_end, sys_id: change_ticket_key } = result;
-                    const obj = {
-                    change_ticket_number,
-                    active,
-                    priority,
-                    description,
-                    work_start,
-                    work_end, 
-                    change_ticket_key
-                    };
-                    callback(obj, error);
-                }
+                console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
             }
+            console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`)
         });
   }
 }
